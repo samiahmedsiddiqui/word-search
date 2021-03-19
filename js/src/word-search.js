@@ -1,13 +1,13 @@
-(function () {
+(function() {
   'use strict';
 
   // Extend the element method
-  Element.prototype.wordSearch = function (settings) {
+  Element.prototype.wordSearch = function(settings) {
     return new WordSearch(this, settings);
   }
 
   /**
-   * Word seach
+   * Word search
    *
    * @param {Element} wrapWl the game's wrap element
    * @param {Array} settings
@@ -25,34 +25,34 @@
 
     var elem = document.getElementById('myWrap');
     var typeId = elem.getAttribute('data-level');
-$("#levelName").text(typeId);
+    $("#levelName").text(typeId);
     // alert(typeId);
     var default_settings;
     if (typeId == 1) {
       // Default settings
-       default_settings = {
+      default_settings = {
         'directions': ['W', 'N', 'WN', 'EN'],
         'gridSize': 5,
         // 'words': ["API"],
-        'words': ["API","APP","IOT","DEV","FAQ"],
+        'words': ["API", "APP", "IOT", "DEV", "FAQ"],
         'wordsList': [],
         'debug': false
       }
-    } else if (typeId == 2){
+    } else if (typeId == 2) {
       default_settings = {
         'directions': ['W', 'N', 'WN', 'EN'],
         'gridSize': 7,
         // 'words': ['REACT'],
-        'words': ['REACT','SWIFT','ANDROID','JAVA','NODEJS','UNITY'],
+        'words': ['REACT', 'SWIFT', 'ANDROID', 'JAVA', 'NODEJS', 'UNITY'],
         'wordsList': [],
         'debug': false
       }
-    }else{
+    } else {
       default_settings = {
         'directions': ['W', 'N', 'WN', 'EN'],
         'gridSize': 9,
         // 'words': ['java'],
-        'words': ['STREAMS','DEVICE','COMPANY','CUSTOMERS','USECASE','INDUSTRY'],
+        'words': ['STREAMS', 'DEVICE', 'COMPANY', 'CUSTOMERS', 'USECASE', 'INDUSTRY'],
         'wordsList': [],
         'debug': false
       }
@@ -87,7 +87,7 @@ $("#levelName").text(typeId);
    * @param {Number} Max size
    * @return {Boolean}
    */
-  WordSearch.prototype.parseWords = function (maxSize) {
+  WordSearch.prototype.parseWords = function(maxSize) {
     var itWorked = true;
 
     for (var i = 0; i < this.settings.words.length; i++) {
@@ -109,7 +109,7 @@ $("#levelName").text(typeId);
   /**
    * Put the words into the matrix
    */
-  WordSearch.prototype.addWords = function () {
+  WordSearch.prototype.addWords = function() {
     var keepGoing = true,
       counter = 0,
       isWorked = true;
@@ -140,7 +140,7 @@ $("#levelName").text(typeId);
    * @param {String} word
    * @param {Number} direction
    */
-  WordSearch.prototype.addWord = function (word, direction) {
+  WordSearch.prototype.addWord = function(word, direction) {
     var itWorked = true,
       directions = {
         'W': [0, 1], // Horizontal (From left to right)
@@ -199,7 +199,7 @@ $("#levelName").text(typeId);
   /**
    * Initialize the application
    */
-  WordSearch.prototype.initialize = function () {
+  WordSearch.prototype.initialize = function() {
     /**
      * Letter matrix
      *
@@ -225,7 +225,7 @@ $("#levelName").text(typeId);
    * Fill default items into the matrix
    * @param {Number} size Grid size
    */
-  WordSearch.prototype.initmatrix = function (size) {
+  WordSearch.prototype.initmatrix = function(size) {
     for (var row = 0; row < size; row++) {
       for (var col = 0; col < size; col++) {
         var item = {
@@ -246,7 +246,7 @@ $("#levelName").text(typeId);
   /**
    * Draw the matrix
    */
-  WordSearch.prototype.drawmatrix = function () {
+  WordSearch.prototype.drawmatrix = function() {
     for (var row = 0; row < this.settings.gridSize; row++) {
       // New row
       var divEl = document.createElement('div');
@@ -283,7 +283,7 @@ $("#levelName").text(typeId);
   /**
    * Fill up the remaining items
    */
-  WordSearch.prototype.fillUpFools = function () {
+  WordSearch.prototype.fillUpFools = function() {
     var rangeLanguage = searchLanguage(this.settings.words[0].split('')[0]);
     for (var row = 0; row < this.settings.gridSize; row++) {
       for (var col = 0; col < this.settings.gridSize; col++) {
@@ -303,7 +303,7 @@ $("#levelName").text(typeId);
    * @param colTo
    * @return {Array}
    */
-  WordSearch.prototype.getItems = function (rowFrom, colFrom, rowTo, colTo) {
+  WordSearch.prototype.getItems = function(rowFrom, colFrom, rowTo, colTo) {
     var items = [];
 
     if (rowFrom === rowTo || colFrom === colTo || Math.abs(rowTo - rowFrom) == Math.abs(colTo - colFrom)) {
@@ -329,14 +329,14 @@ $("#levelName").text(typeId);
    * @param {Number} col
    * @return {*}
    */
-  WordSearch.prototype.getItem = function (row, col) {
+  WordSearch.prototype.getItem = function(row, col) {
     return (this.matrix[row] ? this.matrix[row][col] : undefined);
   }
 
   /**
    * Clear the exist highlights
    */
-  WordSearch.prototype.clearHighlight = function () {
+  WordSearch.prototype.clearHighlight = function() {
     var selectedEls = document.querySelectorAll('.ws-selected');
     for (var i = 0; i < selectedEls.length; i++) {
       selectedEls[i].classList.remove('ws-selected');
@@ -347,7 +347,7 @@ $("#levelName").text(typeId);
    * Lookup if the wordlist contains the selected
    * @param {Array} selected
    */
-  WordSearch.prototype.lookup = function (selected) {
+  WordSearch.prototype.lookup = function(selected) {
     var words = [''];
 
     for (var i = 0; i < selected.length; i++) {
@@ -389,7 +389,7 @@ $("#levelName").text(typeId);
   /**
    * Game Over
    */
-  WordSearch.prototype.gameOver = function () {
+  WordSearch.prototype.gameOver = function() {
     //Create overlay.
     var overlay = document.createElement("div");
     overlay.setAttribute("id", "ws-game-over-outer");
@@ -413,24 +413,24 @@ $("#levelName").text(typeId);
       "<div class='ws-game-over' id='ws-game-over'>" +
       "<h2>Congratulations!</h2>" +
       "<p>You've found all of the words!</p>" +
-      "<a href='javascript:void(0)' data-level='"+ nextlevl +"' class='next-level' id='publish-button' data-score='' data-curLevel='"+ curentLevel +"'>Move to Level "+nextlevl+"</a>" +
-      "<a href='javascript:void(0)' class='playagain'>Play Again</a>"+
+      "<a href='javascript:void(0)' data-level='" + nextlevl + "' class='next-level' id='publish-button' data-score='' data-curLevel='" + curentLevel + "'>Move to Level " + nextlevl + "</a>" +
+      "<a href='javascript:void(0)' class='playagain'>Play Again</a>" +
       "<br><p>You Complete in <span class='complete'></span></p>" +
       "</div>" +
       "</div>";
 
     minutes = fullTime;
-    $("#publish-button").attr("data-score",minutes);
-     if(fullTime > 60){
-     minutes = Math.floor(fullTime / 60);
-     if(minutes > 1){
-     minutes = minutes + ' Minuts';
-     }else{
-     minutes = minutes + ' Minut';
-     }
-     }else{
-     minutes = fullTime+' Seconds';
-     }
+    $("#publish-button").attr("data-score", minutes);
+    if (fullTime > 60) {
+      minutes = Math.floor(fullTime / 60);
+      if (minutes > 1) {
+        minutes = minutes + ' Minuts';
+      } else {
+        minutes = minutes + ' Minut';
+      }
+    } else {
+      minutes = fullTime + ' Seconds';
+    }
     $(".complete").text(minutes);
 
   };
@@ -439,9 +439,9 @@ $("#levelName").text(typeId);
    * Mouse event - Mouse down
    * @param {Object} item
    */
-  WordSearch.prototype.onMousedown = function (item) {
+  WordSearch.prototype.onMousedown = function(item) {
     var _this = this;
-    return function () {
+    return function() {
       _this.selectFrom = item;
     }
   }
@@ -450,9 +450,9 @@ $("#levelName").text(typeId);
    * Mouse event - Mouse move
    * @param {Object}
    */
-  WordSearch.prototype.onMouseover = function (item) {
+  WordSearch.prototype.onMouseover = function(item) {
     var _this = this;
-    return function () {
+    return function() {
       if (_this.selectFrom) {
         _this.selected = _this.getItems(_this.selectFrom.row, _this.selectFrom.col, item.row, item.col);
 
@@ -473,9 +473,9 @@ $("#levelName").text(typeId);
   /**
    * Mouse event - Mouse up
    */
-  WordSearch.prototype.onMouseup = function () {
+  WordSearch.prototype.onMouseup = function() {
     var _this = this;
-    return function () {
+    return function() {
       _this.selectFrom = null;
       _this.clearHighlight();
       _this.lookup(_this.selected);
