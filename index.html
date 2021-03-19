@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Word search game</title>
+    <!--<link rel="stylesheet" href="css/wordsearch.min.css"/>-->
+    <link rel="stylesheet" href="css/style.css"/>
+    <script src="js/wordsearch.js"></script>
+    <script>
+        var cookieDomain = "";
+
+        function setCookie(cookieName, cookieValue) {
+            "use strict";
+
+            var createCookie = "";
+            if (cookieName && cookieName !== "") {
+                createCookie = cookieName + "=" + encodeURIComponent(cookieValue);
+                if (cookieDomain !== "") {
+                    createCookie = createCookie + "; domain=" + cookieDomain;
+                }
+                createCookie = createCookie + "; max-age=315360000";
+                createCookie = createCookie + "; path=/";
+                // createCookie = createCookie + "; secure";
+            }
+
+            if (createCookie !== "") {
+                document.cookie = createCookie;
+            }
+        }
+
+        var cookieExpire = new Date().getFullYear() + 1;
+
+        function getCookie(cookieName) {
+            "use strict";
+
+            var name = cookieName + "=";
+            var ca = document.cookie.split(";");
+            var c = "";
+            var i = 0;
+            while (i < ca.length) {
+                c = ca[i];
+                i += 1;
+                while (c.charAt(0) == " ") {
+                    c = c.substring(1);
+                }
+
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+
+            return "";
+        }
+        var userName = '';
+        if (getCookie("name")) {
+            userName = getCookie("name");
+        }
+        if (userName !== "") {
+//            alert("Welcome again " + userName);
+        } else {
+            person = prompt("Please enter your name:", "");
+            if (person == null || person == "") {
+                userName = "random-generated-" + Math.floor(Math.random() * 100000);
+
+            } else {
+                userName = person;
+            }
+            document.cookie = "name=" + userName + "; expires=" + cookieExpire + ";";
+        }
+    </script>
+</head>
+<body>
+<div class="wrap" id="myWrap" data-level="1">
+    <h1 class="logo">Word search game</h1>
+    <p id="startedTime" style="display: none;">Game started At <span class="start"></span><span class="end"></span></p>
+    <div class="game">
+        <div class="playing">
+            <h3><b>User: </b> <span class="userName"></span> <br> <span class="level-area"><b> Level: </b><span id="levelName">1</span></span></h3>
+            <section id="ws-area"></section>
+        </div>
+        <div class="playing-words">
+            <h3>Find words</h3>
+            <ul class="ws-words"></ul>
+        </div>
+    </div>
+
+    <div class="score-card" style="display: none;">
+        <h2 style="text-align:center;background: -webkit-linear-gradient(#82eb95, #0ad0cd); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Word Search ScoreCard</h2>
+        <br>
+        <ul class="all-score level1" style="display: none;"></ul>
+        <br><br>
+        <ul class="all-score level2" style="display: none;"></ul>
+        <br><br>
+        <ul class="all-score level3" style="display: none;"></ul>
+    </div>
+</div>
+<!--<input id="publish-button" type="submit" value="Click here to Publish"/>-->
+
+<script src="js/jquery.min.js"></script>
+
+<script src="js/utility.min.js"></script>
+<script src="js/wordsearch.js"></script>
+<script src="js/myScript.js"></script>
+<script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.21.7.min.js"></script>
+<script>
+    var myScore = '';
+    var startDate = new Date();
+    jQuery("#startedTime .start").text(startDate.getTime());
+
+    const uuid = "6a51fcd7-2a58-4739-88f9-7c35937c7f5b";
+    const pubnub = new PubNub({
+        publishKey: "pub-c-65d75058-99db-4b5b-a659-aafabdba9b16",
+        subscribeKey: "sub-c-d4366ad6-87df-11eb-a47e-8aa5932e3236",
+        uuid: uuid
+    });
+
+    const button = document.getElementById('publish-button');
+
+    $(document).on('click', '#publish-button', function (e) {
+        pubnub.publish({
+            channel: "Channel-n73u8gzao",
+            message: {"user": userName, "level": $(this).attr('data-curLevel'), "score": $(this).attr('data-score')}
+        }, function (status, response) {
+            //Handle error here
+        });
+
+    });
+
+    /*
+     button.addEventListener('click', () => {
+     });
+     */
+
+    pubnub.subscribe({
+        channels: ['Channel-n73u8gzao'],
+        withPresence: true
+    });
+
+    pubnub.addListener({
+        message: function (event) {
+            let pElement = document.createElement('p');
+//            pElement.appendChild(document.createTextNode('Name: ' + msgs.entry.user + ', Level: ' + msgs.entry.level + ', Score: ' + msgs.entry.score));
+            document.body.appendChild(pElement);
+        },
+        presence: function (event) {
+            let pElement = document.createElement('p');
+            pElement.appendChild(document.createTextNode(event.uuid + " has joined. That's you!"));
+            document.body.appendChild(pElement);
+        }
+    });
+    var mylist1 = '';
+    var mylist2 = '';
+    var mylist3 = '';
+    pubnub.history(
+            {
+                channel: 'Channel-n73u8gzao',
+                count: 10,
+                stringifiedTimeToken: true,
+            },
+            function (status, response) {
+                var msgs = response.messages;
+                var fullTime = 0;
+                var finalTime;
+                var onlyTime;
+                mylist1 = '<li style="order:-1"><span class="user-name">Name</span><span class="level">Level</span><span class="time">Time</span></li>';
+                mylist2 = '<li style="order:-1"><span class="user-name">Name</span><span class="level">Level</span><span class="time">Time</span></li>';
+                mylist3 = '<li style="order:-1"><span class="user-name">Name</span><span class="level">Level</span><span class="time">Time</span></li>';
+                msgs.forEach(function (inner) {
+                    if (inner.entry.score) {
+                        fullTime = inner.entry.score;
+                        if (fullTime.indexOf("Seconds") == -1) {
+                            if (fullTime > 60) {
+                                finalTime = Math.floor(fullTime / 60);
+                                if (finalTime > 1) {
+                                    finalTime = finalTime + ' Minuts';
+                                } else {
+                                    finalTime = finalTime + ' Minut';
+                                }
+                            } else {
+                                fullTime = parseFloat(fullTime).toFixed(1);
+                                finalTime = fullTime + ' Seconds';
+                            }
+                        } else {
+                            finalTime = fullTime;
+                        }
+                        onlyTime = inner.entry.score;
+                        onlyTime = onlyTime.replace("Seconds", "");
+                        onlyTime = onlyTime.replace("Minuts", "");
+                        if (inner.entry.level == 1) {
+                            mylist1 += '<li style="order:' + Math.ceil(onlyTime) + '"><span class="user-name">' + inner.entry.user + '</span><span class="level">' + inner.entry.level + '</span><span class="Time">' + finalTime + '</span></li>';
+                        } else if (inner.entry.level == 2) {
+                            mylist2 += '<li style="order:' + Math.ceil(onlyTime) + '"><span class="user-name">' + inner.entry.user + '</span><span class="level">' + inner.entry.level + '</span><span class="Time">' + finalTime + '</span></li>';
+                        } else if (inner.entry.level == 3) {
+                            mylist3 += '<li style="order:' + Math.ceil(onlyTime) + '"><span class="user-name">' + inner.entry.user + '</span><span class="level">' + inner.entry.level + '</span><span class="Time">' + finalTime + '</span></li>';
+                        }
+                    }
+                });
+                $(".all-score.level1").append(mylist1);
+                if ($(".all-score.level1 li").length > 1) {
+                    $(".all-score.level1").show();
+                    $(".score-card").show();
+                }
+                $(".all-score.level2").append(mylist2);
+                if ($(".all-score.level2 li").length > 1) {
+                    $(".all-score.level2").show();
+                }
+                $(".all-score.level3").append(mylist3);
+                if ($(".all-score.level3 li").length > 1) {
+                    $(".all-score.level3").show();
+                }
+            }
+    );
+</script>
+
+</body>
+</html>
